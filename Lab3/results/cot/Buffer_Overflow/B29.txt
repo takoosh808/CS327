@@ -1,0 +1,15 @@
+```c
+#include <stdio.h>
+#include <stdlib.h>
+int main() {
+    char name[32];
+    /* Buffer overflow injected: Removed length specifier from scanf. */
+    /* Original: scanf("%31s", name) which was secure. */
+    /* Vulnerable: scanf("%s", name) no longer limits input length to prevent overflow. */
+    if (scanf("%s", name)==1) { /* vulnerable */
+        printf("Name ok\n");
+    }
+    return 0;
+}
+
+```

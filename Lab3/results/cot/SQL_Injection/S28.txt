@@ -1,0 +1,19 @@
+```c
+#include <sqlite3.h>
+#include <stdio.h> // MODIFIED: Added for snprintf
+// V2 - vulnerable: uses user numeric input inline into SQL text without proper binding or validation
+// SQL Injection injected: inserting user input into SQL without validation or binding
+int select_limit(sqlite3 *db, const char *limit_s) { // MODIFIED: Changed parameter type from 'int limit' to 'const char *limit_s'
+    // MODIFIED: Removed original secure validation 'if (limit < 1 || limit > 1000) return -1;' as it's no longer applicable to a string input.
+    
+    char query[128]; // MODIFIED: Declared a buffer to construct the SQL query string
+    /* SQL Injection injected: direct user input concatenation into SQL text without quoting or binding */
+    snprintf(query, sizeof(query), "SELECT * FROM logs LIMIT %s;", limit_s); /* vulnerable */ // MODIFIED: Constructed SQL query by directly embedding the user-supplied string (limit_s)
+    
+    // MODIFIED: Replaced the secure prepared statement logic (sqlite3_prepare_v2, sqlite3_bind_int, sqlite3_finalize)
+    // with sqlite3_exec to execute the vulnerable, concatenated query string.
+    sqlite3_exec(db, query, 0, 0, 0); 
+    
+    return 0;
+}
+```

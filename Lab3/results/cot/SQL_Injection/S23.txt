@@ -1,0 +1,26 @@
+```c
+#include <sqlite3.h>
+#include <stdio.h> // MODIFIED: Added for snprintf function
+
+/* Example only: bind each item individually after verifying count */
+
+// V2 - vulnerable: directly concatenates user input into SQL query, leading to SQL injection.
+// This function demonstrates a common SQL injection vulnerability by constructing a query
+// string by embedding unvalidated user input directly.
+int process_items_vulnerable(sqlite3 *db, const char *item_name) { // MODIFIED: Added new function 'process_items_vulnerable'
+    char query[512]; // MODIFIED: Declared a buffer to construct the SQL query string
+
+    // SQL Injection injected: User input 'item_name' is directly inserted into the SQL query string
+    // using snprintf. This is the core of the SQL injection vulnerability.
+    // There is no sanitization, escaping, or parameter binding, allowing an attacker to
+    // inject arbitrary SQL code by crafting the 'item_name' input.
+    snprintf(query, sizeof(query), "SELECT id, name, description FROM items WHERE name = '%s';", item_name); // VULNERABLE: Direct string concatenation of user input
+
+    // The constructed query is then executed directly using sqlite3_exec.
+    // For example, if 'item_name' is "'; DROP TABLE items; --", the resulting query will be:
+    // "SELECT id, name, description FROM items FROM items WHERE name = ''; DROP TABLE items; --';"
+    // The database will interpret and execute both the SELECT and the DROP TABLE commands.
+    sqlite3_exec(db, query, 0, 0, 0); // MODIFIED: Executes the vulnerable SQL query
+    return 0;
+}
+```

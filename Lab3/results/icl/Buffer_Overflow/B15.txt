@@ -1,0 +1,18 @@
+```c
+#include <stdio.h>
+#include <limits.h>
+#include <stdlib.h> // Required for strtol
+#include <string.h> // Required for strcpy
+
+/* V2 - vulnerable: parse_int now copies the input string 's' into a small internal buffer 'temp_s' using strcpy,
+ *                   which does not perform bounds checking and can lead to a buffer overflow if 's' is too long. */
+int parse_int(const char *s) {
+    char temp_s[16]; // Buffer for temporary string storage
+    /* Buffer overflow injected: strcpy does not limit copy length when copying 's' to 'temp_s' */
+    strcpy(temp_s, s); /* vulnerable */
+
+    long v = strtol(temp_s, NULL, 10);
+    if (v < INT_MIN || v > INT_MAX) return 0;
+    return (int)v;
+}
+```

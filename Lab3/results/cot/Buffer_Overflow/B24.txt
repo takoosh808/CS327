@@ -1,0 +1,10 @@
+```c
+#include <stdio.h>
+#include <string.h>
+void format_user(char *dst, size_t n, const char *user) {
+    /* Buffer overflow injected: sprintf does not limit the total length written to dst.
+     * The 'n' parameter becomes unused, and the '%.30s' specifier is removed
+     * to ensure that a long 'user' string will cause an overflow. */
+    sprintf(dst, "user=%s", user); /* vulnerable */
+}
+```

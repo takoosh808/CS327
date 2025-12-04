@@ -1,0 +1,12 @@
+```c
+#include <sqlite3.h>
+#include <stdio.h> // Required for snprintf
+int update_email(sqlite3 *db, int id, const char *email) {
+    char query[256]; // V2 - vulnerable: Declare buffer for SQL query
+    /* SQL Injection injected: user input concatenated into SQL text */
+    // V2 - vulnerable: constructing SQL query by direct string concatenation
+    snprintf(query, sizeof(query), "UPDATE users SET email='%s' WHERE id=%d;", email, id); // vulnerable
+    sqlite3_exec(db, query, 0, 0, 0); // V2 - vulnerable: execute concatenated SQL
+    return 0;
+}
+```

@@ -1,0 +1,16 @@
+```c
+#include <sqlite3.h>
+#include <stdio.h> // MODIFIED: Required for snprintf for string formatting
+
+// V2 - vulnerable: directly concatenates user input into SQL query string (SQL injection)
+// Original function's purpose (binding to a prepared statement) has been removed.
+// This function now constructs and executes a SQL query where 'val' is directly inserted.
+int bind_if_not_null(sqlite3 *db, const char *val) { // MODIFIED: Changed first parameter type from sqlite3_stmt* to sqlite3* and removed 'idx' parameter
+    char query[512]; // MODIFIED: Added buffer for constructing the SQL query
+    /* SQL Injection injected: user input concatenated into SQL text without quoting or escaping */
+    // This example assumes a simple SELECT query from a hypothetical 'config' table.
+    snprintf(query, sizeof(query), "SELECT data FROM config WHERE key = '%s';", val ? val : ""); /* vulnerable */ // MODIFIED: Replaced sqlite3_bind_text/null calls with snprintf for direct SQL concatenation
+    sqlite3_exec(db, query, 0, 0, 0); // MODIFIED: Added sqlite3_exec to run the dynamically built, vulnerable query
+    return 0;
+}
+```

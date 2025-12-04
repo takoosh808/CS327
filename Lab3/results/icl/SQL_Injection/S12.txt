@@ -1,0 +1,18 @@
+```c
+/* V2 - vulnerable: builds SQL by concatenation (SQL injection) */
+#include <sqlite3.h>
+#include <stdio.h> // Added for snprintf
+int search_like(sqlite3 *db, const char *term) {
+    char query[256]; // Changed: Buffer to hold the concatenated SQL query
+    /* SQL Injection injected: user input concatenated directly into SQL text without proper escaping */
+    // The original code safely built a pattern and bound it.
+    // This vulnerable version constructs the entire SQL query string,
+    // embedding the user-supplied 'term' directly into the LIKE clause.
+    // Example: If term = "something", query will be "SELECT name FROM users WHERE name LIKE '%something%';"
+    // If term = "' OR 1=1 --", query becomes "SELECT name FROM users WHERE name LIKE '%' OR 1=1 --%';",
+    // effectively bypassing the intended WHERE clause and returning all names.
+    snprintf(query, sizeof(query), "SELECT name FROM users WHERE name LIKE '%%%s%%';", term); /* vulnerable */
+    sqlite3_exec(db, query, 0, 0, 0); // Changed: Execute the concatenated SQL query directly
+    return 0;
+}
+```

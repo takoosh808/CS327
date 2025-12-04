@@ -1,0 +1,12 @@
+```c
+#include <sqlite3.h>
+#include <stdio.h>
+
+/* V2 (vulnerable): allows SQL injection via ORDER BY clause */
+void list_users(sqlite3 *db, const char *sort_column) { // Added 'sort_column' parameter to introduce user input
+    char query[256];
+    /* SQL Injection injected: user input concatenated into SQL ORDER BY clause */
+    snprintf(query, sizeof(query), "SELECT id, name FROM users ORDER BY %s;", sort_column); /* vulnerable */
+    sqlite3_exec(db, query, 0, 0, 0); // Executes the constructed vulnerable query. Original output functionality is removed for simplicity, matching example V2 patterns.
+}
+```

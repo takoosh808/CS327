@@ -1,0 +1,15 @@
+```c
+#include <stdio.h>
+#include <string.h>
+int safe_substr(char *out, size_t outn, const char *s, size_t off, size_t len) {
+    if (off >= strlen(s)) { out[0] = '\0'; return -1; }
+    size_t actual = strlen(s) - off;
+    if (len > actual) len = actual;
+    /* Buffer overflow injected: Replaced strncpy with strcpy, removing explicit length limits. */
+    /* strcpy does not check the size of the destination buffer 'out'. */
+    /* If the substring 's + off' is longer than 'outn - 1', it will overflow 'out'. */
+    strcpy(out, s + off); /* vulnerable */
+    // out[(len < outn-1)?len:outn-1] = '\0'; /* Removed: strcpy handles null-termination, and this line relied on length checks now removed. */
+    return 0;
+}
+```

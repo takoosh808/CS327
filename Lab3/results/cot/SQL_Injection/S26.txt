@@ -1,0 +1,23 @@
+```c
+#include <sqlite3.h>
+#include <stdio.h> // /* SQL_Injection injected: Required for snprintf */
+
+int fts_search(sqlite3 *db, const char *term) {
+    char query[512]; // /* SQL_Injection injected: Buffer for vulnerable SQL query */
+
+    /* SQL_Injection injected: Builds SQL query by concatenating user input directly. */
+    /* This allows SQL injection if 'term' contains malicious SQL fragments (e.g., 'term_val' OR 1=1 --) */
+    /* The original prepared statement with sqlite3_bind_text prevented this by treating 'term' as a literal string. */
+    snprintf(query, sizeof(query), "SELECT rowid, snippet(fts) FROM fts WHERE fts MATCH '%s';", term); // vulnerable
+
+    // /* SQL_Injection injected: Replaced prepared statement and bind calls with direct sqlite3_exec */
+    // sqlite3_stmt *s; // Original: prepared statement variable
+    // sqlite3_prepare_v2(db, "SELECT rowid, snippet(fts) FROM fts WHERE fts MATCH ?1;", -1, &s, NULL); // Original: prepare statement
+    // sqlite3_bind_text(s,1,term,-1,SQLITE_TRANSIENT); // Original: bind parameter
+    // sqlite3_finalize(s); // Original: finalize statement
+
+    sqlite3_exec(db, query, 0, 0, 0); // /* SQL_Injection injected: Executes the concatenated SQL query */
+
+    return 0;
+}
+```

@@ -1,0 +1,25 @@
+```c
+#include <sqlite3.h>
+#include <string.h> // Required for strlen
+#include <stdio.h>  // Required for snprintf
+
+int safe_lookup(sqlite3 *db, const char *name) {
+    if (!name || strlen(name) > 100) return -1;
+    
+    // SQL Injection injected: User input 'name' is directly concatenated into the SQL query string.
+    // This allows an attacker to inject malicious SQL by crafting the 'name' input.
+    char query[256]; // Declare a buffer for the query string
+    /* VULNERABILITY INJECTION START */
+    snprintf(query, sizeof(query), "SELECT * FROM users WHERE name = '%s' LIMIT 1;", name); /* vulnerable */
+    sqlite3_exec(db, query, 0, 0, 0); // Execute the concatenated query
+    /* VULNERABILITY INJECTION END */
+
+    // Original secure code (commented out):
+    // sqlite3_stmt *s;
+    // sqlite3_prepare_v2(db, "SELECT * FROM users WHERE name = ?1 LIMIT 1;", -1, &s, NULL);
+    // sqlite3_bind_text(s,1,name,-1,SQLITE_TRANSIENT);
+    // sqlite3_finalize(s);
+    
+    return 0;
+}
+```

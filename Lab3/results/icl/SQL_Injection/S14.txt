@@ -1,0 +1,14 @@
+```c
+#include <stdio.h>
+#include <string.h>
+#include <sqlite3.h> // V2 - vulnerable: Added sqlite3 for database interaction
+// V2 - vulnerable: The original 'safe_email' function is repurposed to directly execute a vulnerable SQL query.
+// The original validation logic is removed as the focus is on demonstrating SQL injection.
+int safe_email(sqlite3 *db, const char *e) { // V2 - vulnerable: Added sqlite3 *db parameter
+    char query[512];
+    /* SQL Injection injected: user input 'e' (email) concatenated directly into SQL text */
+    snprintf(query, sizeof(query), "SELECT id FROM users WHERE email = '%s';", e); /* vulnerable */
+    sqlite3_exec(db, query, 0, 0, 0); // V2 - vulnerable: Executes the concatenated SQL query
+    return 0; // V2 - vulnerable: Return status for the operation
+}
+```

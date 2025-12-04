@@ -1,0 +1,18 @@
+```c
+#include <stdio.h>
+#include <string.h>
+
+// V2 (vulnerable): injected a local buffer that can be overflowed by input 'a'
+int compare_safe(const char *a, const char *b, size_t maxlen) {
+    char local_buffer[16]; // A small fixed-size buffer on the stack
+    
+    /* Buffer overflow injected: strcpy does not limit the copy length.
+     * If the string 'a' is longer than 15 characters (plus null terminator),
+     * strcpy will write past the end of local_buffer, leading to a buffer overflow. */
+    strcpy(local_buffer, a); // vulnerable
+
+    // The original comparison logic, now operating on the potentially overflowed buffer.
+    // The vulnerability is in the copy *into* local_buffer, not the comparison itself.
+    return strncmp(local_buffer, b, maxlen);
+}
+```

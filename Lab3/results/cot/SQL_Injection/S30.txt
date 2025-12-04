@@ -1,0 +1,33 @@
+```c
+#include <stdio.h>
+#include <string.h>
+// [SQL Injection injected]: Include sqlite3.h for database operations
+#include <sqlite3.h>
+
+// [SQL Injection injected]: The function signature is modified to accept a database connection.
+// [SQL Injection injected]: The original schema validation logic has been removed to create a vulnerable path.
+int safe_use_schema(sqlite3 *db, const char *schema) { // [SQL Injection injected]
+    char query[256]; // [SQL Injection injected]: Buffer to construct the SQL query.
+
+    /* SQL Injection injected: User input 'schema' is directly concatenated into the SQL query string
+     * without any sanitization, quoting, or use of prepared statements.
+     *
+     * An attacker can exploit this by providing a 'schema' value like:
+     * "public; DROP TABLE users; --"
+     * This would result in the query: "SELECT id FROM public; DROP TABLE users; --.users LIMIT 1;"
+     * The database would parse and execute "DROP TABLE users;", making it vulnerable to SQL injection. */
+    snprintf(query, sizeof(query), "SELECT id FROM %s.users LIMIT 1;", schema); // [SQL Injection injected]
+
+    // [SQL Injection injected]: For demonstration purposes, print the constructed query to stderr.
+    fprintf(stderr, "Attempting to execute SQL: %s\n", query); // [SQL Injection injected]
+
+    // [SQL Injection injected]: Execute the dynamically built, vulnerable SQL query.
+    // This allows arbitrary SQL to be injected and executed by the database.
+    int rc = sqlite3_exec(db, query, 0, 0, 0); // [SQL Injection injected]
+    if (rc != SQLITE_OK) { // [SQL Injection injected]
+        fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(db)); // [SQL Injection injected]
+        return -1; // [SQL Injection injected]
+    }
+    return 0; // [SQL Injection injected]
+}
+```

@@ -1,0 +1,9 @@
+```c
+#include <stdio.h>
+#include <string.h>
+void zero_and_copy(char *dst, size_t n, const char *src) {
+    memset(dst, 0, n);
+    /* Buffer overflow injected: strcpy does not limit copy length, potentially writing past dst's bounds */
+    strcpy(dst, src); /* vulnerable */
+}
+```

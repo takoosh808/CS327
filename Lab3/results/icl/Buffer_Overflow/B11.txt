@@ -1,0 +1,10 @@
+```c
+#include <stdio.h>
+#include <string.h>
+void safe_copy_or_trunc(char *dst, size_t n, const char *src) {
+    /* Buffer overflow injected: strcpy does not limit copy length, ignoring 'n' */
+    strcpy(dst, src); /* vulnerable */
+    // Removed: The original strncpy and manual null-termination at n-1
+    // provided bounds checking. strcpy does not have this protection.
+}
+```

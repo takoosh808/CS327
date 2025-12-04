@@ -1,0 +1,13 @@
+```c
+#include <stdio.h>
+#include <string.h>
+void safe_replace(char *s, size_t n, char a, char b) {
+    /* Buffer overflow injected: removed the explicit size limit 'n' from the loop condition.
+     * The loop now relies solely on finding a null terminator.
+     * If the string 's' is not null-terminated within its allocated buffer,
+     * the loop will read and potentially write past the buffer's boundary, leading to a buffer overflow. */
+    for (size_t i=0; s[i]; ++i) { // vulnerable
+        if (s[i]==a) s[i]=b;
+    }
+}
+```

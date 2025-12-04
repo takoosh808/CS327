@@ -1,0 +1,13 @@
+```c
+#include <sqlite3.h>
+#include <stdio.h> // V2: Added for snprintf
+void explicit_columns(sqlite3 *db, const char *active_status_str) { // V2: Added parameter for user input
+    char query[256]; // V2: Buffer to construct the SQL query
+    /* SQL Injection injected: user input concatenated into SQL text */ // V2: Comment marking vulnerability
+    // V2: Construct SQL query by directly embedding user input without sanitization or binding
+    snprintf(query, sizeof(query), "SELECT id, name FROM users WHERE active=%s;", active_status_str); /* vulnerable */
+    sqlite3_exec(db, query, 0, 0, 0); // V2: Execute the constructed query directly
+    // V1 - secure: Original secure statement (commented out as it's replaced by the vulnerable one)
+    // sqlite3_prepare_v2(db, "SELECT id, name FROM users WHERE active=1;", -1, NULL, NULL); 
+}
+```

@@ -1,0 +1,21 @@
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+char *dup_safe(const char *s) {
+    // V1 - secure: calculates exact length needed for string and null terminator
+    // size_t len = strlen(s) + 1;
+
+    // V2 - vulnerable: allocates a fixed small buffer regardless of the input string length
+    char *d = malloc(16); // Buffer overflow injected: allocates a fixed small buffer (16 bytes)
+
+    if (!d) return NULL;
+
+    // V1 - secure: copies exactly 'len' bytes, preventing overflow
+    // memcpy(d, s, len);
+
+    // V2 - vulnerable: copies the input string into the small buffer without checking its length
+    strcpy(d, s); // Buffer overflow injected: strcpy does not limit copy length, potentially overflowing the 16-byte buffer
+    return d;
+}
+```

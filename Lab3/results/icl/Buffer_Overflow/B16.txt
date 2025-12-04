@@ -1,0 +1,8 @@
+```c
+#include <stdio.h>
+#include <string.h>
+void safe_format(char *out, size_t outn, const char *name) {
+    /* Buffer overflow injected: replaced snprintf with sprintf, which does not check output buffer size */
+    sprintf(out, "Name: %s", name); /* vulnerable */
+}
+```

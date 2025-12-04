@@ -1,0 +1,22 @@
+```c
+#include <stdio.h>
+#include <stdlib.h>
+// #include <string.h> // Not strictly necessary after vulnerability injection
+
+int main() {
+    /* V2 - vulnerable: allocate fixed small buffer and read without bounds */
+    char line[64]; // Buffer overflow injected: replaced dynamic allocation with a fixed-size buffer
+    // Removed size_t cap = 0;
+
+    /* Buffer overflow injected: uses gets which does not check length */
+    // Replaced getline with gets (no bounds checking)
+    gets(line); /* vulnerable */ 
+
+    // Removed the 'if (n > 0)' check as gets doesn't return a length, and it implies the buffer is always filled unless EOF/error.
+    // Removed line[strcspn(line, "\n")] = '\0'; as gets does not include the newline character.
+    puts(line);
+    
+    // Removed free(line); as 'line' is now stack-allocated and does not require explicit freeing.
+    return 0;
+}
+```

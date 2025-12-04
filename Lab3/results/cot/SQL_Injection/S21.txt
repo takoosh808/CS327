@@ -1,0 +1,25 @@
+```c
+#include <sqlite3.h>
+#include <stdio.h> // Marked change: Added for snprintf
+
+int insert_blob(sqlite3 *db, const void *data, int len) {
+    // Marked change: Declared a buffer for the vulnerable SQL query string.
+    char query[1024]; 
+
+    /* SQL Injection injected:
+     * The original code securely binds binary data as a BLOB parameter.
+     * This vulnerable version bypasses parameter binding and instead
+     * treats the 'data' (which is originally 'const void *') as a
+     * null-terminated string ('const char *') and concatenates it directly
+     * into the SQL query using snprintf. This opens the door for SQL
+     * injection if the 'data' contains malicious SQL fragments.
+     * The 'len' parameter is ignored in this vulnerable concatenation,
+     * relying on 'data' being a null-terminated string for %s formatting.
+     */
+    snprintf(query, sizeof(query), "INSERT INTO bin(d) VALUES('%s');", (const char *)data); // Marked change: Vulnerable direct string concatenation
+
+    // Marked change: Executing the crafted SQL query directly without a prepared statement.
+    sqlite3_exec(db, query, 0, 0, 0);
+    return 0;
+}
+```

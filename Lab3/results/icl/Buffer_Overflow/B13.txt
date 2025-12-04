@@ -1,0 +1,11 @@
+```c
+#include <stdio.h>
+#include <string.h>
+int main(void) {
+    char buf[128];
+    /* Buffer overflow injected: replaced fgets with gets (no bounds checking) */
+    gets(buf); /* vulnerable */
+    puts(buf);
+    return 0;
+}
+```

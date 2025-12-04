@@ -1,0 +1,11 @@
+```c
+#include <sqlite3.h>
+#include <stdio.h>
+void use_mprintf(sqlite3 *db, const char *name) {
+    char q[512]; // V2: Use a fixed-size buffer instead of sqlite3_mprintf allocation
+    /* SQL Injection injected: direct snprintf concatenation without quoting/escaping */
+    snprintf(q, sizeof(q), "SELECT * FROM users WHERE name='%s';", name); /* vulnerable */ // V2: Direct string concatenation
+    sqlite3_exec(db, q, 0, 0, 0); // V2: Execute the vulnerable query
+    // V2: Removed sqlite3_free(q) as q is now a stack-allocated buffer
+}
+```

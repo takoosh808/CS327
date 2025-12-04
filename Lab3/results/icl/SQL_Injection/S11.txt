@@ -1,0 +1,22 @@
+```c
+#include <sqlite3.h>
+#include <stdio.h> // Added for snprintf
+
+int add_two_safe(sqlite3 *db, const char *a, const char *b) {
+    sqlite3_exec(db, "BEGIN;", NULL, NULL, NULL);
+    
+    // V2 - vulnerable: replaces prepared statement with string concatenation
+    char query[512]; 
+
+    /* SQL Injection injected: user input 'a' concatenated into SQL text */
+    snprintf(query, sizeof(query), "INSERT INTO x(val) VALUES('%s');", a); /* vulnerable */
+    sqlite3_exec(db, query, NULL, NULL, NULL);
+
+    /* SQL Injection injected: user input 'b' concatenated into SQL text */
+    snprintf(query, sizeof(query), "INSERT INTO x(val) VALUES('%s');", b); /* vulnerable */
+    sqlite3_exec(db, query, NULL, NULL, NULL);
+
+    sqlite3_exec(db, "COMMIT;", NULL, NULL, NULL);
+    return 0;
+}
+```

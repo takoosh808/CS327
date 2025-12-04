@@ -1,0 +1,18 @@
+```c
+/* V2 - vulnerable: Injected buffer overflow using scanf without width specifier */
+#include <stdio.h>
+#include <stdlib.h>
+int main() {
+    char name[16]; // V2 change: Added a fixed-size buffer to be overflowed
+    int n;
+    if (scanf("%d", &n) == 1) {
+        printf("n=%d\n", n);
+    }
+    /* Buffer overflow injected: scanf with %s does not limit input length,
+     * allowing input longer than 15 characters to overflow the 'name' buffer. */
+    printf("Enter your name: "); // V2 change: Added a prompt for user input
+    scanf("%s", name); /* vulnerable */
+    printf("Hello %s\n", name); // V2 change: Print the potentially overflowed buffer
+    return 0;
+}
+```

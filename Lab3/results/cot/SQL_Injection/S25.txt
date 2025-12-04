@@ -1,0 +1,44 @@
+```c
+#include <sqlite3.h>
+#include <stdio.h> // Required for snprintf
+
+/* V2 - vulnerable: demonstrates SQL Injection by direct string concatenation */
+int search_item_vulnerable(sqlite3 *db, const char *item_name) {
+    char query[512]; // Buffer to hold the SQL query string
+
+    /* SQL Injection injected: user input concatenated directly into SQL text */
+    /* This allows an attacker to inject malicious SQL commands by crafting 'item_name' */
+    snprintf(query, sizeof(query), "SELECT id, description FROM items WHERE name = '%s';", item_name); /* vulnerable */
+
+    // Execute the constructed query without using prepared statements
+    // or proper input binding/quoting.
+    // In a real application, the callback function would process results.
+    int rc = sqlite3_exec(db, query, 0, 0, 0);
+
+    if (rc != SQLITE_OK) {
+        fprintf(stderr, "SQL error: %s\n", sqlite3_errmsg(db));
+        return -1;
+    }
+    return 0;
+}
+
+/* Example: always use '?', never inject raw user input into SQL text */
+// For completeness, here's how a secure version might look:
+/*
+int search_item_secure(sqlite3 *db, const char *item_name) {
+    sqlite3_stmt *stmt;
+    const char *sql = "SELECT id, description FROM items WHERE name = ?1;";
+
+    sqlite3_prepare_v2(db, sql, -1, &stmt, NULL);
+    sqlite3_bind_text(stmt, 1, item_name, -1, SQLITE_STATIC);
+
+    // int rc;
+    // while ((rc = sqlite3_step(stmt)) == SQLITE_ROW) {
+    //     // Process results
+    // }
+
+    sqlite3_finalize(stmt);
+    return 0;
+}
+*/
+```

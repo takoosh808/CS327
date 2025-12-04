@@ -1,0 +1,20 @@
+```c
+#include <sqlite3.h>
+#include <stdio.h> // /* SQL_Injection injected: required for snprintf */
+
+// /* SQL_Injection injected: changed function signature to accept user-controlled data instead of a full SQL string */
+int safe_prepare(sqlite3 *db, const char *table_name) {
+    sqlite3_stmt *s;
+    char query_buffer[256]; // /* SQL_Injection injected: buffer to construct the SQL query */
+
+    // /* SQL_Injection injected: builds SQL query by directly concatenating user input (table_name) */
+    // /* This allows an attacker to inject malicious SQL fragments into the table_name */
+    snprintf(query_buffer, sizeof(query_buffer), "SELECT * FROM %s WHERE id = 1;", table_name); /* vulnerable */
+
+    // /* SQL_Injection injected: passing the unsafely constructed query_buffer to sqlite3_prepare_v2 */
+    int rc = sqlite3_prepare_v2(db, query_buffer, -1, &s, NULL);
+    if (rc != SQLITE_OK) return rc;
+    sqlite3_finalize(s);
+    return SQLITE_OK;
+}
+```

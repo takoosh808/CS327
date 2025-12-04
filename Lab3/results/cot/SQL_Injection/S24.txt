@@ -1,0 +1,35 @@
+```c
+#include <sqlite3.h>
+#include <stdio.h>   // Added for snprintf
+#include <string.h>  // Added for strlen and strcat
+
+int safe_update_many(sqlite3 *db, int id, const char **columns, const char **values, int n) {
+    /* SQL_Injection injected: Builds SQL query by concatenating user input directly into the SQL string. */
+    char query[1024]; // Changed: Buffer to hold the dynamically constructed SQL query.
+    char set_clause[512] = ""; // Changed: Buffer to construct the "SET column = value" part.
+
+    // Changed: Loop through the provided columns and values to build the SET clause.
+    for (int i = 0; i < n; i++) {
+        if (i > 0) {
+            strcat(set_clause, ", ");
+        }
+        // SQL_Injection injected: Direct concatenation of column names and values without proper quoting
+        // or using prepared statements. This allows an attacker to inject arbitrary SQL.
+        // For example, if 'columns[i]' is "name" and 'values[i]' is "'; DROP TABLE users; --",
+        // the resulting SQL fragment will be "name = ''; DROP TABLE users; --'".
+        snprintf(set_clause + strlen(set_clause), sizeof(set_clause) - strlen(set_clause),
+                 "%s = '%s'", columns[i], values[i]); /* vulnerable */
+    }
+
+    // SQL_Injection injected: The final SQL query is assembled using snprintf, embedding the
+    // potentially malicious 'set_clause' and the 'id' (though 'id' itself as an int is less
+    // of a direct injection risk when formatted with %d, the 'set_clause' is the main point).
+    // Assumes a table named 'users' for the purpose of demonstrating the vulnerability.
+    snprintf(query, sizeof(query), "UPDATE users SET %s WHERE id = %d;", set_clause, id); /* vulnerable */
+
+    // Changed: Execute the dynamically built, vulnerable SQL query.
+    sqlite3_exec(db, query, 0, 0, 0);
+
+    return 0;
+}
+```

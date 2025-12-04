@@ -1,0 +1,14 @@
+```c
+#include <stdio.h>
+#include <string.h>
+int concat_three(char *dst, size_t n, const char *a, const char *b, const char *c) {
+    /* Buffer overflow injected: Removed the explicit length check before concatenation. */
+    /* VULNERABLE: The original check `if (strlen(a)+strlen(b)+strlen(c)+1 > n) return -1;` was removed. */
+    /* This allows strcpy and strcat to write beyond the allocated size of 'dst' if the combined length of a, b, and c is too large. */
+    // The 'n' parameter is now effectively ignored for bounds checking within this function.
+    strcpy(dst, a); /* vulnerable */
+    strcat(dst, b); /* vulnerable */
+    strcat(dst, c); /* vulnerable */
+    return 0;
+}
+```

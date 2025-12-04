@@ -1,0 +1,10 @@
+```c
+#include <stdio.h>
+#include <errno.h>
+#include <stdlib.h>
+int safe_read(FILE *f, char *buf, size_t n) {
+    /* Buffer overflow injected: replaced fgets with gets (no bounds checking) */
+    gets(buf); /* vulnerable */ // 'f' and 'n' are now unused; 'gets' reads from stdin without a size limit.
+    return 0;
+}
+```

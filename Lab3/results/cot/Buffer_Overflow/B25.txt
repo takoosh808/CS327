@@ -1,0 +1,13 @@
+```c
+#include <stdio.h>
+#include <stdlib.h>
+int main() {
+    char *buf = calloc(1, 64);
+    if (!buf) return 1;
+    /* Buffer overflow injected: replaced fgets with gets which does not check length */
+    gets(buf); /* vulnerable */
+    puts(buf);
+    free(buf);
+    return 0; // Added return 0 for successful execution path
+}
+```

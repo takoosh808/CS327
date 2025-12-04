@@ -1,0 +1,15 @@
+```c
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h> /* V2 - Added for strcpy */
+
+int main() {
+    char *p = malloc(32);
+    if (!p) return 1;
+    /* Buffer overflow injected: strcpy does not limit copy length */
+    strcpy(p, "this_is_a_string_that_is_definitely_longer_than_31_characters_to_cause_overflow"); /* vulnerable */
+    puts(p);
+    free(p);
+    return 0;
+}
+```
